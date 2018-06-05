@@ -27,6 +27,7 @@ PIXI.loader
   .add('client/img/spaceships/F5S4.png')
   .add('client/img/bullets/bala.png')
   .add('client/img/background/nebula.jpg')
+  .add('client/img/items/health-transparent.png')
   .load(setup)
 
 // Datos de sockets
@@ -35,13 +36,14 @@ let ships = []
 let printedShips = [] // Para hacerlo mas comodo
 let bullets = []
 let printedBullets = [] // Para hacerlo mas comodo
-
+let itemHp = {}
 const username = 'Test'
 const password = 'Test'
 
 const socket = io('http://localhost:2000')
 socket.on('connected', function(data) {
   playerShip.id = data.id
+  itemHp.id = 1;
   socket.emit('signUp', { username, password })
 })
 
@@ -56,14 +58,49 @@ socket.on('signInResponse', (data) => {
 
 let text
 
+
+/*var timer = setInterval(function() {
+  var random = Math.floor(Math.random()*17)+1;
+  switch(random) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+      itemHp.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/health-transparent.png'].texture)
+      sprite.position.x = 250;
+      sprite.position.y = 250;
+      app.stage.addChild(itemHp.sprite)
+      console.log("Entra aqui");
+    break;
+  }
+  clearInterval(timer);
+},1000)*/
+
+
 function setup() {
   // Asignamos los sprites a variables para poder usarlos, en el caso de background esta declarado como local de esta funcion, si quieres manipularlo, tendras que sacarlo como las otras
   const background = new PIXI.Sprite(PIXI.loader.resources['client/img/background/nebula.jpg'].texture)
   playerShip.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/F5S4.png'].texture)
-
+  itemHp.sprite =  itemHp.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/health-transparent.png'].texture)
   // Para imprimirlo en el centro
   playerShip.sprite.x = 250
   playerShip.sprite.y = 250
+
+  itemHp.sprite.x=250
+  itemHp.sprite.y=250
 
   text = new PIXI.Text('YO',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
   text.x = playerShip.sprite.x
@@ -77,6 +114,7 @@ function setup() {
   // A;adimos imagenes, se pueden eliminar mas tarde, aunque estas dos seguramente esten todo el tiempo, por eso las he a;adido en setup
   app.stage.addChild(background)
   app.stage.addChild(playerShip.sprite)
+  app.stage.addChild(itemHp.sprite)
   app.stage.addChild(text)
   app.ticker.add(delta => gameLoop(delta))
 }
@@ -132,6 +170,8 @@ function gameLoop(delta) {
     printedShips.splice(position, 1)
   })
 
+
+
   bullets.forEach(bullet => {
     const position = printedBullets.findIndex((printedBullet) => printedBullet.id === bullet.id)
     if(position === -1) {
@@ -163,6 +203,7 @@ function gameLoop(delta) {
     printedBullets.splice(position, 1)
   })
 }
+
 
 
 

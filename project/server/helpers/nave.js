@@ -1,5 +1,5 @@
 const Bala = require('./bala.js')
-
+const Item = require('./itemHp.js');
 
 class Nave {
   constructor(id) {
