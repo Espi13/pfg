@@ -1,13 +1,12 @@
 const Bala = require('./bala.js')
-const Item = require('./itemHp.js');
+const Item = require('./item.js');
 
 class Nave {
   constructor(id) {
     this.id = id
     this.x =  Math.floor(Math.random () *1450) +150; 
     this.y = Math.floor(Math.random () *550) +90;
-    this.w = 86
-    this.h = 145
+    this.r = 40
     this.spdX = 0
     this.spdY = 0
     this.pressingRight = false;
@@ -16,12 +15,15 @@ class Nave {
     this.pressingDown = false;
     this.pressingAttack = false;
     this.angle = 0;
-    this.maxSpd = 5;
+    this.maxSpd = 4;
     this.hp = 1;
-    this.hpMax = 1;
+    this.hpMax = 10;
     this.score = 0;
     this.name = null
     this.lastBullet = 0
+    this.shield = 0
+    this.haveShield = false
+    this.recoil = 1000
   }
 
   setName(name) {
@@ -29,7 +31,6 @@ class Nave {
   }
 
   update(data) {
-    
     this.pressingLeft = data.left;
     this.pressingRight = data.right;
     this.pressingUp = data.up;
@@ -59,7 +60,7 @@ class Nave {
     
       this.y += this.spdY
     
-    if(this.pressingAttack && this.lastBullet + 1000 <= new Date().getTime()) {
+    if(this.pressingAttack && this.lastBullet + this.recoil <= new Date().getTime()) {
       this.lastBullet = new Date().getTime()
       
       const id = disparos.length > 0 ? disparos.slice(-1)[0].id + 1 : 0
@@ -73,7 +74,15 @@ class Nave {
   }
 
   changeLife(hp) {
-    this.hp += hp
+    if (this.shield > 0) {
+      this.shield--
+      this.r = 50
+      
+    }
+    else {
+      this.hp += hp
+    }
+    
   }
 }
 

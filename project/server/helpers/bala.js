@@ -7,8 +7,8 @@ class Bala {
     this.yO = y
     this.x = x
     this.y = y
-    this.w = 40
-    this.h = 40
+    this.r = 15
+    
     this.damage = -1
     this.parentID = parentID;
     this.removed = false;
@@ -28,12 +28,12 @@ class Bala {
 
     naves.forEach((nave) => {
       if(this.parentID !== nave.id) {
-        if(this.x + this.w / 2 >= nave.x - nave.w / 2 &&
-          this.x - this.w / 2 <= nave.x + nave.w / 2 &&
-          this.y + this.h / 2 >= nave.y - nave.h / 2 &&
-          this.y - this.h / 2 <= nave.y + nave.h / 2) {
+        let dist_X = nave.x - this.x
+        let dist_Y = nave.y - this.y
+        let dist = Math.sqrt(Math.pow(dist_X, 2) +Math.pow(dist_Y, 2))
+        if(dist <= this.r + nave.r ) {
             nave.changeLife(this.damage)
-           
+            
             if (nave.hp ==0) {
               const position = disparos.findIndex((disparo) => disparo.id === this.id)
               disparos.splice(position, 1)

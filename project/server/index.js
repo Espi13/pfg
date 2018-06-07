@@ -10,10 +10,24 @@ const io = socketIO(server)
 const Player = require('./helpers/nave.js')
 const Bala = require('./helpers/nave.js')
 const User = require('./models/user.js')
-const itemHp = require('./helpers/itemHp.js');
+const ItemHP = require('./helpers/itemHp.js');
+const ItemSpeed = require('./helpers/itemSpeed.js');
+const ItemShield = require('./helpers/itemShield.js');
+const ItemRecoil = require('./helpers/itemRecoil.js');
+const ItemStar = require('./helpers/itemStar.js');
+
+
+const ItemTypes = [
+  { name: 'ItemStar', prob: 10, ref: ItemStar },
+  { name: 'ItemHP', prob: 22.5, ref: ItemHP },
+  { name: 'ItemSpeed', prob: 22.5, ref: ItemSpeed },
+  { name: 'ItemRecoil', prob: 22.5, ref: ItemRecoil },
+  { name: 'ItemShield', prob: 22.5, ref: ItemShield }
+]
 
 const naves = []
 const disparos = []
+const items = []
 
 app.get ('/', function (req,res) {
     console.log(__dirname)
@@ -93,12 +107,30 @@ setInterval(function () {
   disparos.forEach(function (bala, index) {
     bala.updatePosition(naves, disparos)
   })
-
+  items.forEach(function(item) {
+    item.updateItem(naves,items)
+  })
   io.emit('data', {
     naves,
-    disparos
+    disparos,
+    items
   })
 }, 10)
+
+setInterval(function() {
+  var random = Math.floor(Math.random() * 10000) / 100
+  for(let i = 0, amount = 0; i < ItemTypes.length && amount < random; i++) {
+    if(random >= amount && random < amount + ItemTypes[i].prob) {
+      // TODO: Logica para añadir item
+      const id = items.length > 0 ? items.slice(-1)[0].id + 1 : 0
+      const item = new ItemTypes[i].ref(id, ItemTypes[i].name)
+      items.push(item);
+    }
+
+    amount += ItemTypes[i].prob
+  }
+
+},7000)
 
 mongoose.Promise = global.Promise
 mongoose.connect('mongodb://localhost:27017/game')
