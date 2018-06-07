@@ -16,7 +16,7 @@ class Nave {
     this.pressingAttack = false;
     this.angle = 0;
     this.maxSpd = 4;
-    this.hp = 1;
+    this.hp = 10;
     this.hpMax = 10;
     this.score = 0;
     this.name = null

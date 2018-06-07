@@ -5,11 +5,11 @@
 
 const app = new PIXI.Application({
   width: 1700,
-  height: 800,
+  height: 900,
   transparent: true,
   antialias: true
 })
-
+const graphics = new PIXI.Graphics();
 const controls = {
   up: false,
   down: false,
@@ -46,6 +46,7 @@ let printedShields = []
 let bullets = []
 let printedBullets = [] // Para hacerlo mas comodo
 let items = []
+
 let printedItems = []
 const username = 'Test'
 const password = 'Test'
@@ -79,7 +80,7 @@ function setup() {
   spriteShield.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image.png'].texture)
   spriteShield.sprite.x = -100
   spriteShield.sprite.y = -100
-    
+  
   
 
   // Para imprimirlo en el centro
@@ -95,7 +96,7 @@ function setup() {
   // Para que el punto de rotacion sea el centro de la nave y no el punto (0, 0)
   playerShip.sprite.anchor.x = 0.5
   playerShip.sprite.anchor.y = 0.5
-  console.log("entra aqui");
+
   // A;adimos imagenes, se pueden eliminar mas tarde, aunque estas dos seguramente esten todo el tiempo, por eso las he a;adido en setup
   app.stage.addChild(background)
   app.stage.addChild(playerShip.sprite)
@@ -111,6 +112,14 @@ function gameLoop(delta) {
   playerShip.sprite.x = ships[playerPosition].x
   playerShip.sprite.y = ships[playerPosition].y
   playerShip.sprite.rotation = controls.angle
+  graphics.lineStyle(2, 0x000000, 1);
+  graphics.beginFill(0xFFFFFF, 0.1);
+  graphics.drawRoundedRect(600, 800, 500, 50, 10);
+  graphics.beginFill(0xFB0101, 1);
+  let hp = ships[playerPosition].hp *50
+  graphics.drawRoundedRect(600, 800, hp, 50, 10);
+  graphics.endFill();
+  app.stage.addChild(graphics);
   if(ships[playerPosition].shield > 0) { 
     spriteShield.sprite.x = ships[playerPosition].x
     spriteShield.sprite.y = ships[playerPosition].y
@@ -152,6 +161,7 @@ function gameLoop(delta) {
       sprite.y = item.y
       printedItems.push({ id: item.id, sprite})
       app.stage.addChild(sprite)
+      
     }
   });
   
@@ -217,12 +227,14 @@ function gameLoop(delta) {
       const spriteShieldEnemy = printedShields[position].spriteShieldEnemy
       spriteShieldEnemy.x = ships[position].x
       spriteShieldEnemy.y = ships[position].y
+      console.log("entra aqui");
     }
     else if (ships[position].haveShield && ships[position].shield == 0) {
       app.stage.removeChild(spriteShieldEnemy,spriteShieldEnemy)
-      shieldToDelete.push(printedBullet.id)
+      shieldToDelete.push( printedShields.id)
+      
     }
-
+    
 
     if(position === -1) {
       console.log('Borrando nave')
