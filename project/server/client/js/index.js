@@ -4,12 +4,13 @@
 
 
 const app = new PIXI.Application({
-  width: 1700,
+  width: 1890,
   height: 900,
   transparent: true,
   antialias: true
 })
-const graphics = new PIXI.Graphics();
+const hpbackground = new PIXI.Graphics()
+const hpbar = new PIXI.Graphics()
 const controls = {
   up: false,
   down: false,
@@ -46,6 +47,7 @@ let printedShields = []
 let bullets = []
 let printedBullets = [] // Para hacerlo mas comodo
 let items = []
+var hpafter = 10
 
 let printedItems = []
 const username = 'Test'
@@ -67,11 +69,6 @@ socket.on('signInResponse', (data) => {
   console.log(data)
 })
 
-let text
-
-
-
-
 
 function setup() {
   // Asignamos los sprites a variables para poder usarlos, en el caso de background esta declarado como local de esta funcion, si quieres manipularlo, tendras que sacarlo como las otras
@@ -87,21 +84,51 @@ function setup() {
   playerShip.sprite.x = 250
   playerShip.sprite.y = 250
 
-  
-  
-  text = new PIXI.Text('YO',{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
-  text.x = playerShip.sprite.x
-  text.y = playerShip.sprite.y + 50
-
   // Para que el punto de rotacion sea el centro de la nave y no el punto (0, 0)
   playerShip.sprite.anchor.x = 0.5
   playerShip.sprite.anchor.y = 0.5
 
+
+  var style = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 36,
+      fontStyle: 'italic',
+      fontWeight: 'bold',
+      fill: ['#01DF01', '#000000'], // gradient
+      stroke: '#4a1850',
+      strokeThickness: 5,
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowBlur: 4,
+      dropShadowAngle: Math.PI / 6,
+      dropShadowDistance: 6,
+      wordWrap: true,
+      wordWrapWidth: 440
+  })
+
+  var richText = new PIXI.Text('SCORE', style)
+  richText.x = 1700
+  richText.y = 50
+
+    hpbackground.lineStyle(2, 0x000000, 1)
+    hpbackground.beginFill(0xFFFFFF, 0.1)
+    hpbackground.drawRoundedRect(600, 800, 500, 50, 10)
+    hpbar.beginFill(0x01DF01, 1)
+    hpbar.drawRoundedRect(0, 0, 500, 50, 10)
+    hpbar.x = 600
+    hpbar.y = 800
+    hpbar.endFill()
+    
+    
+
+  
   // A;adimos imagenes, se pueden eliminar mas tarde, aunque estas dos seguramente esten todo el tiempo, por eso las he a;adido en setup
   app.stage.addChild(background)
   app.stage.addChild(playerShip.sprite)
   app.stage.addChild(spriteShield.sprite)
-  app.stage.addChild(text)
+  app.stage.addChild(richText);
+  app.stage.addChild(hpbackground);
+  app.stage.addChild(hpbar);
   app.ticker.add(delta => gameLoop(delta))
 }
 
@@ -112,14 +139,13 @@ function gameLoop(delta) {
   playerShip.sprite.x = ships[playerPosition].x
   playerShip.sprite.y = ships[playerPosition].y
   playerShip.sprite.rotation = controls.angle
-  graphics.lineStyle(2, 0x000000, 1);
-  graphics.beginFill(0xFFFFFF, 0.1);
-  graphics.drawRoundedRect(600, 800, 500, 50, 10);
-  graphics.beginFill(0xFB0101, 1);
-  let hp = ships[playerPosition].hp *50
-  graphics.drawRoundedRect(600, 800, hp, 50, 10);
-  graphics.endFill();
-  app.stage.addChild(graphics);
+  if (ships[playerPosition].hp !== hpafter){
+    hpafter = ships[playerPosition].hp
+    let hp = ships[playerPosition].hp *50
+    hpbar.width = hp
+
+  }
+  
   if(ships[playerPosition].shield > 0) { 
     spriteShield.sprite.x = ships[playerPosition].x
     spriteShield.sprite.y = ships[playerPosition].y
@@ -131,8 +157,7 @@ function gameLoop(delta) {
     spriteShield.sprite.y = - 100
   }
   
-  text.x = playerShip.sprite.x
-  text.y = playerShip.sprite.y + 50
+  
   
   items.forEach((item) => {
     
@@ -187,9 +212,7 @@ function gameLoop(delta) {
       const position = printedShips.findIndex((printedShip) => printedShip.id === ship.id)
       if(position === -1) {
         console.log('Pintando a ' + ship.id)
-        
-        
-        
+
         const sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave_enemy.png'].texture)
         sprite.x = ship.x
         sprite.y = ship.y
@@ -212,27 +235,25 @@ function gameLoop(delta) {
 
   printedShips.forEach((printedShip, index) => {
     const position = ships.findIndex((ship) => printedShip.id === ship.id)
-    
-    if(ships[position].shield > 0 &&  !ships[position].haveShield) { 
-      const spriteShieldEnemy = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image-enemy.png'].texture)
-      spriteShieldEnemy.x = ships[position].x
-      spriteShieldEnemy.y = ships[position].y
-      spriteShieldEnemy.anchor.x = 0.5
-      spriteShieldEnemy.anchor.y = 0.5
-      ships[position].haveShield = true
-      printedShields.push({ id: printedShip.id, spriteShieldEnemy})
-      app.stage.addChild(spriteShieldEnemy)
-    }
-    else if (ships[position].haveShield) {
-      const spriteShieldEnemy = printedShields[position].spriteShieldEnemy
-      spriteShieldEnemy.x = ships[position].x
-      spriteShieldEnemy.y = ships[position].y
-      console.log("entra aqui");
-    }
-    else if (ships[position].haveShield && ships[position].shield == 0) {
-      app.stage.removeChild(spriteShieldEnemy,spriteShieldEnemy)
-      shieldToDelete.push( printedShields.id)
-      
+    const shieldPosition = printedShields.findIndex((shield) => shield.id === printedShip.id)
+
+    if(ships[position].shield > 0) { 
+      if(shieldPosition === -1) {
+        const spriteShieldEnemy = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image-enemy.png'].texture)
+        spriteShieldEnemy.x = ships[position].x
+        spriteShieldEnemy.y = ships[position].y
+        spriteShieldEnemy.anchor.x = 0.5
+        spriteShieldEnemy.anchor.y = 0.5
+        ships[position].haveShield = true
+        printedShields.push({ id: printedShip.id, sprite: spriteShieldEnemy})
+        app.stage.addChild(spriteShieldEnemy)
+      } else {
+        printedShields[shieldPosition].sprite.x = ships[position].x
+        printedShields[shieldPosition].sprite.y = ships[position].y
+      }
+    } else if(shieldPosition !== -1) {
+      app.stage.removeChild(printedShields[shieldPosition].sprite)
+      printedShields.splice(shieldPosition, 1)
     }
     
 
@@ -242,7 +263,7 @@ function gameLoop(delta) {
       toDelete.push(printedShip.id)
     }
   })
-  let shieldToDelete = []
+
   toDelete.forEach(id => {
     const position = printedShips.findIndex(printedShip => printedShip.id === id)
     printedShips.splice(position, 1)

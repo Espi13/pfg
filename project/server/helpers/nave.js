@@ -22,8 +22,8 @@ class Nave {
     this.name = null
     this.lastBullet = 0
     this.shield = 0
-    this.haveShield = false
     this.recoil = 1000
+    
   }
 
   setName(name) {
@@ -41,7 +41,7 @@ class Nave {
 
   updatePosition(disparos) {
 
-    if (this.pressingRight && this.x <=1620)
+    if (this.pressingRight && this.x <=1600)
       this.spdX = this.maxSpd;
     else if (this.pressingLeft && this.x >=80)
       this.spdX = -this.maxSpd;
@@ -80,6 +80,7 @@ class Nave {
       
     }
     else {
+      
       this.hp += hp
     }
     

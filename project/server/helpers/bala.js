@@ -15,7 +15,7 @@ class Bala {
   }
 
   updatePosition(naves, disparos) {
-    if ((this.x>=0 && this.x<= 1700) && (this.y>=0 && this.y <=800)) {
+    if ((this.x>=0 && this.x<= 1600) && (this.y>=0 && this.y <=800)) {
       this.x += this.spdX
       this.y += this.spdY
 
