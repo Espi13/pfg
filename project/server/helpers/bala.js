@@ -8,7 +8,6 @@ class Bala {
     this.x = x
     this.y = y
     this.r = 15
-    
     this.damage = -1
     this.parentID = parentID;
     this.removed = false;
@@ -43,7 +42,7 @@ class Bala {
               var respawn =setInterval(function() {
                 nave.x = Math.floor(Math.random () *1450) +150; 
                 nave.y = Math.floor(Math.random () *550) +90;
-                nave.hp =1;
+                nave.hp =10;
                 nave.score =0;
                 clearInterval(respawn);
               },2000)

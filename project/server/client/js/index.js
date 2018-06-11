@@ -2,7 +2,6 @@
 
 // TODO: A;adir toda la logica de inicio de sesion
 
-
 const app = new PIXI.Application({
   width: 1890,
   height: 900,
@@ -11,6 +10,30 @@ const app = new PIXI.Application({
 })
 const hpbackground = new PIXI.Graphics()
 const hpbar = new PIXI.Graphics()
+const hpbackgroundEnemy = new PIXI.Graphics()
+const hpbarEnemy = new PIXI.Graphics()
+const nameText = new PIXI.Text();
+
+var hpTextStyle = new PIXI.TextStyle({
+  fontFamily: 'Arial',
+  fontSize: 30,
+  fontWeight: 'bold',
+  fill: ['#01DF01', '#FFFFFF'], // gradient
+  stroke: '#000000',
+  strokeThickness: 5,
+  dropShadow: true,
+  dropShadowColor: '#000000',
+  dropShadowBlur: 4,
+  dropShadowAngle: Math.PI / 6,
+  dropShadowDistance: 6,
+  wordWrap: true,
+  wordWrapWidth: 440
+})
+var hpText = new PIXI.Text('10  /  10', hpTextStyle)
+hpText.x = 800
+hpText.y = 805
+
+app.stage.addChild(hpText);
 const controls = {
   up: false,
   down: false,
@@ -48,25 +71,63 @@ let bullets = []
 let printedBullets = [] // Para hacerlo mas comodo
 let items = []
 var hpafter = 10
+var hpafterEnemy = 10
 
 let printedItems = []
-const username = 'Test'
-const password = 'Test'
+//const username = 'Test'
+//const password = 'Test'
 const spriteShield = {}
 
 const socket = io('http://localhost:2000')
+
+var signDiv = document.getElementById('signDiv');
+var signDivSignIn = document.getElementById('signDiv-signIn');
+var signDivSignUp = document.getElementById('signDiv-signUp');
+
+var username = ""
+var password = ""
+
+
+
 socket.on('connected', function(data) {
   playerShip.id = data.id
-  socket.emit('signUp', { username, password })
+  
+  signDivSignUp.onclick = function () {
+    
+    username = document.getElementById('signDiv-username').value
+    password = document.getElementById('signDiv-password').value;
+    socket.emit('signUp',{username, password});
+  }
+  
+  signDivSignIn.onclick = function () { 
+    
+    username = document.getElementById('signDiv-username').value
+    password = document.getElementById('signDiv-password').value;
+    socket.emit('signIn',{username,password});
+  }
 })
 
 socket.on('signUpResponse', (data) => {
-  console.log(data)
-  socket.emit('signIn', { username, password })
+  if(data.success) {
+    signDiv.style.display="none";
+    gameDiv.style.display="block";
+    socket.emit('signIn', { username, password })
+}
+else {
+   alert("No es posible realizar el registro ");
+  
+}
 })
 
 socket.on('signInResponse', (data) => {
-  console.log(data)
+  if(data.success) {
+    signDiv.style.display="none";
+    gameDiv.style.display="block";
+}
+else {
+   alert("No es posible realizar el inicio de sesion ");
+   
+}
 })
 
 
@@ -94,8 +155,8 @@ function setup() {
       fontSize: 36,
       fontStyle: 'italic',
       fontWeight: 'bold',
-      fill: ['#01DF01', '#000000'], // gradient
-      stroke: '#4a1850',
+      fill: ['#01DF01', '#FFFFFF'], // gradient
+      stroke: '#000000',
       strokeThickness: 5,
       dropShadow: true,
       dropShadowColor: '#000000',
@@ -110,25 +171,22 @@ function setup() {
   richText.x = 1700
   richText.y = 50
 
-    hpbackground.lineStyle(2, 0x000000, 1)
-    hpbackground.beginFill(0xFFFFFF, 0.1)
-    hpbackground.drawRoundedRect(600, 800, 500, 50, 10)
-    hpbar.beginFill(0x01DF01, 1)
-    hpbar.drawRoundedRect(0, 0, 500, 50, 10)
-    hpbar.x = 600
-    hpbar.y = 800
-    hpbar.endFill()
-    
-    
+  hpbackground.lineStyle(2, 0x000000, 1)
+  hpbackground.beginFill(0xFFFFFF, 0.1)
+  hpbackground.drawRoundedRect(600, 800, 500, 50, 10)
+  hpbar.beginFill(0x01DF01, 1)
+  hpbar.drawRoundedRect(0, 0, 500, 50, 10)
+  hpbar.x = 600
+  hpbar.y = 800
+  hpbar.endFill()
 
-  
-  // A;adimos imagenes, se pueden eliminar mas tarde, aunque estas dos seguramente esten todo el tiempo, por eso las he a;adido en setup
   app.stage.addChild(background)
   app.stage.addChild(playerShip.sprite)
   app.stage.addChild(spriteShield.sprite)
   app.stage.addChild(richText);
   app.stage.addChild(hpbackground);
   app.stage.addChild(hpbar);
+  app.stage.addChild(hpText);
   app.ticker.add(delta => gameLoop(delta))
 }
 
@@ -139,10 +197,12 @@ function gameLoop(delta) {
   playerShip.sprite.x = ships[playerPosition].x
   playerShip.sprite.y = ships[playerPosition].y
   playerShip.sprite.rotation = controls.angle
+ 
   if (ships[playerPosition].hp !== hpafter){
     hpafter = ships[playerPosition].hp
     let hp = ships[playerPosition].hp *50
     hpbar.width = hp
+    hpText.text = ships[playerPosition].hp + "  /  " + ships[playerPosition].hpMax
 
   }
   
@@ -212,21 +272,59 @@ function gameLoop(delta) {
       const position = printedShips.findIndex((printedShip) => printedShip.id === ship.id)
       if(position === -1) {
         console.log('Pintando a ' + ship.id)
-
         const sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave_enemy.png'].texture)
         sprite.x = ship.x
         sprite.y = ship.y
         sprite.anchor.x = 0.5
         sprite.anchor.y = 0.5
-
         sprite.rotation = ship.angle
+        hpbackgroundEnemy.lineStyle(2, 0x000000, 1)
+        hpbackgroundEnemy.beginFill(0xFFFFFF, 0.1)
+        hpbackgroundEnemy.drawRoundedRect(0, 0, 50, 10, 2)
+        hpbackgroundEnemy.x = ship.x -45
+        hpbackgroundEnemy.y = ship.y + 30
+        hpbarEnemy.beginFill(0xFA0101, 1)
+        hpbarEnemy.drawRoundedRect(0, 0, 50, 10, 2)
+        hpbarEnemy.x = ship.x - 25
+        hpbarEnemy.y = ship.y + 50
+        hpbarEnemy.endFill()
+        var nameStyle = new PIXI.TextStyle({
+          fontFamily: 'Arial',
+          fontSize: 14,
+          fontWeight: 'bold',
+          fill: '#FFFFFF', // gradient
+          stroke: '#000000',
+          strokeThickness: 5,
+          wordWrap: true,
+          wordWrapWidth: 440
+      });
+        var name = ship.name.toUpperCase()
+        nameText.style = nameStyle
+        nameText.text = name
+        nameText.x = ship.x - 25;
+        nameText.y =  ship.y - 50;
+
         printedShips.push({ id: ship.id, sprite})
         app.stage.addChild(sprite)
+        app.stage.addChild(hpbackgroundEnemy)
+        app.stage.addChild(hpbarEnemy)
+        app.stage.addChild(nameText);
       } else {
         const sprite = printedShips[position].sprite
         sprite.x = ship.x
         sprite.y = ship.y
         sprite.rotation = ship.angle
+        hpbackgroundEnemy.x = ship.x -25
+        hpbackgroundEnemy.y = ship.y + 50
+        hpbarEnemy.x = ship.x - 25
+        hpbarEnemy.y = ship.y + 50
+        nameText.x = ship.x - 25;
+        nameText.y =  ship.y - 50;
+        if (hpafterEnemy !== ship.hp) {
+          hpafterEnemy = ship.hp
+          hpbarEnemy.width = ship.hp * 5
+
+        }
       }
     }
   });
