@@ -37,15 +37,10 @@ app.get ('/', function (req,res) {
 app.use('/client', express.static(__dirname + '/client'));
 
 io.sockets.on('connection', function (socket) {
-  const id = naves.length > 0 ? naves.slice(-1)[0].id + 1 : 0
-  const jugador = new Player(id)
-  naves.push(jugador)
-
-  console.log('Nosequien se ha conectado con el ID ' + id)
-
-  socket.emit('connected', {
-    id
-  })
+  let id
+  let jugador 
+  
+  socket.emit('connected')
 
   socket.on('signIn', async function (data) {
     try {
@@ -53,9 +48,21 @@ io.sockets.on('connection', function (socket) {
       const validPassword = await user.comparePassword(data.password)
 
       if(validPassword) {
-        jugador.setName(user.name)
-        console.log('Oye! Que nosequien con el ID ' + id + ' era ' + user.name)
-        socket.emit('signInResponse', { success: true });
+        const userPosition = naves.findIndex((nave) => nave.name === user.name)
+        if (userPosition !== -1) {
+          socket.emit('signInResponse', { success: false });
+        }
+        else {
+          id = naves.length > 0 ? naves.slice(-1)[0].id + 1 : 0
+          socket.emit('idAssigned', { id })
+          jugador = new Player(id)
+          jugador.setName(user.name)
+          console.log('Oye! Que ' + user.name + ' con el ID ' + id + ' se ha conectado')
+          naves.push(jugador)
+          socket.emit('signInResponse', { success: true });
+        }
+        
+        
       } else {
         socket.emit('signInResponse', { success: false });
       }
@@ -76,15 +83,17 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    const ids = disparos.filter((disparo) => disparo.parentID === jugador.id).map((disparo) => disparo.id)
-    ids.forEach((id) => {
-      const pos = disparos.findIndex(disparo => disparo.id === id)
-      disparos.splice(pos, 1)
-    })
+    if (jugador) {
+      const ids = disparos.filter((disparo) => disparo.parentID === jugador.id).map((disparo) => disparo.id)
+      ids.forEach((id) => {
+        const pos = disparos.findIndex(disparo => disparo.id === id)
+        disparos.splice(pos, 1)
+      })
 
-    const position = naves.findIndex(nave => nave.id === jugador.id)
-    console.log('Dile adios a ID ' + id + ' aka ' + jugador.name)
-    naves.splice(position, 1)
+      const position = naves.findIndex(nave => nave.id === jugador.id)
+      console.log('Dile adios a ID ' + id + ' aka ' + jugador.name)
+      naves.splice(position, 1)
+    }
   });
 
   socket.on('sendMsgToServer', function (data) {
@@ -94,7 +103,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('keydown', function (data) {
-    jugador.update(data)
+    if (jugador) jugador.update(data)
   })
 })
 

@@ -1,0 +1,3 @@
+comprobar si el usuario ya esta online
+puntuaciones
+actualizar angulo si alguien se desconecta peta

@@ -44,23 +44,6 @@ const controls = {
 }
 
 console.log({a: app.view})
-document.getElementById('gameDiv').appendChild(app.view)
-
-// Precarga de las imagenes
-PIXI.loader
-  .add('client/img/spaceships/nave.png')
-  .add('client/img/spaceships/nave_enemy.png')
-  .add('client/img/bullets/bala.png')
-  .add('client/img/bullets/bala_enemy.png')
-  .add('client/img/background/nebula.jpg')
-  .add('client/img/items/health-transparent.png')
-  .add('client/img/items/speed-transparent.png')
-  .add('client/img/items/overpower-transparent.png')
-  .add('client/img/items/shield-transparent.png')
-  .add('client/img/items/speedshot-transparent.png')
-  .add('client/img/items/shield-image.png')
-  .add('client/img/items/shield-image-enemy.png')
-  .load(setup)
 
 // Datos de sockets
 let playerShip = {}
@@ -80,6 +63,7 @@ const spriteShield = {}
 
 const socket = io('http://localhost:2000')
 
+var container = document.getElementById('container');
 var signDiv = document.getElementById('signDiv');
 var signDivSignIn = document.getElementById('signDiv-signIn');
 var signDivSignUp = document.getElementById('signDiv-signUp');
@@ -87,11 +71,7 @@ var signDivSignUp = document.getElementById('signDiv-signUp');
 var username = ""
 var password = ""
 
-
-
 socket.on('connected', function(data) {
-  playerShip.id = data.id
-  
   signDivSignUp.onclick = function () {
     
     username = document.getElementById('signDiv-username').value
@@ -109,8 +89,7 @@ socket.on('connected', function(data) {
 
 socket.on('signUpResponse', (data) => {
   if(data.success) {
-    signDiv.style.display="none";
-    gameDiv.style.display="block";
+    alert("has sido registrado correctamente, iniciando sesion...")
     socket.emit('signIn', { username, password })
 }
 else {
@@ -121,8 +100,24 @@ else {
 
 socket.on('signInResponse', (data) => {
   if(data.success) {
-    signDiv.style.display="none";
+    container.style.display="none";
     gameDiv.style.display="block";
+
+    // Precarga de las imagenes
+    PIXI.loader
+      .add('client/img/spaceships/nave.png')
+      .add('client/img/spaceships/nave_enemy.png')
+      .add('client/img/bullets/bala.png')
+      .add('client/img/bullets/bala_enemy.png')
+      .add('client/img/background/nebula.jpg')
+      .add('client/img/items/health-transparent.png')
+      .add('client/img/items/speed-transparent.png')
+      .add('client/img/items/overpower-transparent.png')
+      .add('client/img/items/shield-transparent.png')
+      .add('client/img/items/speedshot-transparent.png')
+      .add('client/img/items/shield-image.png')
+      .add('client/img/items/shield-image-enemy.png')
+      .load(setup)
 }
 else {
    alert("No es posible realizar el inicio de sesion ");
@@ -130,16 +125,24 @@ else {
 }
 })
 
+socket.on('idAssigned', ({ id }) => {
+  playerShip.id = id
+})
+
 
 function setup() {
+  document.getElementById('gameDiv').appendChild(app.view)
+
+  setInterval(function() {
+    socket.emit('keydown', controls)
+  }, 100)
+
   // Asignamos los sprites a variables para poder usarlos, en el caso de background esta declarado como local de esta funcion, si quieres manipularlo, tendras que sacarlo como las otras
   const background = new PIXI.Sprite(PIXI.loader.resources['client/img/background/nebula.jpg'].texture)
   playerShip.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave.png'].texture)        
   spriteShield.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image.png'].texture)
   spriteShield.sprite.x = -100
   spriteShield.sprite.y = -100
-  
-  
 
   // Para imprimirlo en el centro
   playerShip.sprite.x = 250
@@ -148,7 +151,6 @@ function setup() {
   // Para que el punto de rotacion sea el centro de la nave y no el punto (0, 0)
   playerShip.sprite.anchor.x = 0.5
   playerShip.sprite.anchor.y = 0.5
-
 
   var style = new PIXI.TextStyle({
       fontFamily: 'Arial',
@@ -471,9 +473,6 @@ document.addEventListener('mousedown',(event) => {
 document.addEventListener('mouseup',(event) => {
     controls.click = false;
 })
-setInterval(function() {
-  socket.emit('keydown', controls)
-}, 100)
 
 socket.on('data', (data) => {
   

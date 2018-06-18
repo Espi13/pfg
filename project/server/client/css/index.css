@@ -1,6 +1,130 @@
-/*#display {
-    background-image: url('/client/img/background/nebula.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    
+/*html { 
+  background: url("../img/background/nebula.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  overflow: hidden;
 }*/
+.spaceship{
+    display: block;
+    margin: auto;
+    width: 200px;
+    height: 200px;
+  }
+  .circle {
+    display: block;
+    margin: auto;
+    width: 100%;
+    height: auto;
+  }
+  #login-button{
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 195px;
+    height: 195px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 10px 10px 30px rgb(63, 63, 63);
+  }
+
+
+    #container{
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      width: 260px;
+      height: 260px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 1px 1px 50px #000;
+      display: none;
+    }
+    
+    .close-btn{
+      position: absolute;
+      cursor: pointer;
+      font-family: 'Open Sans Condensed', sans-serif;
+      line-height: 18px;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      border-radius: 10px;
+      opacity: .4;
+      -webkit-transition: all 2s ease-in-out;
+      -moz-transition: all 2s ease-in-out;
+      -o-transition: all 2s ease-in-out;
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .close-btn:hover{
+      opacity: .5;
+    }
+    h1{
+      font-family: Roboto, sans-serif;
+      position: relative;
+      margin-top: 5px;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 25px;
+      color: #ddd;
+      text-shadow: 3px 3px 10px #000;
+    }
+
+    a,input{
+      font-family: 'Open Sans Condensed', sans-serif;
+      text-decoration: none;
+      position: relative;
+      width: 80%;
+      display: block;
+      margin: 15px auto;
+      font-size: 17px;
+      color: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background: rgba(3,3,3,.2);
+      -webkit-transition: all 2s ease-in-out;
+      -moz-transition: all 2s ease-in-out;
+      -o-transition: all 2s ease-in-out;
+      transition: all 0.2s ease-in-out;
+      
+    }
+    
+    input:focus{
+      outline: none;
+      box-shadow: 3px 3px 10px #333;
+      background: rgba(3,3,3,.3);
+    }
+    
+    /* Placeholders */
+    ::-webkit-input-placeholder {
+       color: #ddd;  }
+    :-moz-placeholder { /* Firefox 18- */
+       color: red;  }
+    ::-moz-placeholder {  /* Firefox 19+ */
+       color: red;  }
+    :-ms-input-placeholder {  
+       color: #333;  }
+       a{
+        font-family: 'Open Sans Condensed', sans-serif;
+        text-align: center;
+        padding: 4px 8px;
+        background: rgba(255, 5, 5, 0.4);
+        cursor: pointer;
+        
+      }
+      
+      a:hover{
+       opacity: 0.7;
+      }
