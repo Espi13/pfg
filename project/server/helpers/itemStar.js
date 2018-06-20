@@ -15,9 +15,13 @@ class ItemStar extends Item  {
                     naves[nave].recoil = this.recoil
                     naves[nave].hp = this.heal
                     naves[nave].maxSpd = this.maxSpd
+                    naves[nave].speedActive = true;
+                    naves[nave].recoilActive = true;
                     setTimeout (function() {
                         naves[nave].recoil = 1000
                         naves[nave].maxSpd = 4
+                        naves[nave].speedActive = false
+                        naves[nave].recoilActive = false
                     },10000)
                     
                 }

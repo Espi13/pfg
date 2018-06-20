@@ -114,7 +114,9 @@ setInterval(function () {
   })
   //Actualizamos todas las posiciones de las balas
   disparos.forEach(function (bala, index) {
-    bala.updatePosition(naves, disparos)
+    bala.updatePosition(naves, disparos, () => {
+      io.emit('muerte')
+    })
   })
   items.forEach(function(item) {
     item.updateItem(naves,items)
@@ -124,7 +126,7 @@ setInterval(function () {
     disparos,
     items
   })
-}, 10)
+}, 5)
 
 setInterval(function() {
   var random = Math.floor(Math.random() * 10000) / 100
@@ -144,16 +146,6 @@ setInterval(function() {
 mongoose.Promise = global.Promise
 mongoose.connect('mongodb://localhost:27017/game')
   .then(() => {
-    server.listen(2000)
+    server.listen(3000)
     
   })
-
-// Cliente
-/*puntuaciones = []
-naves.forEach(
-  puntuaciones.push(nave.score)
-)
-
-puntuaciones = naves.map((nave) => nave.score)
-
-puntuaciones.order((a, b) => a > b)*/

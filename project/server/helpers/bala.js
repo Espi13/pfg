@@ -1,20 +1,20 @@
 class Bala {
   constructor(id, parentID, angle, x, y) {
     this.id = id
-    this.spdX = Math.cos(angle) * 10;
-    this.spdY = Math.sin(angle) * 10;
+    this.spdX = Math.cos(angle) * 10
+    this.spdY = Math.sin(angle) * 10
     this.xO = x
     this.yO = y
     this.x = x
     this.y = y
     this.r = 15
     this.damage = -1
-    this.parentID = parentID;
-    this.removed = false;
+    this.parentID = parentID
+    this.removed = false
   }
 
-  updatePosition(naves, disparos) {
-    if ((this.x>=0 && this.x<= 1650) && (this.y>=0 && this.y <=800)) {
+  updatePosition(naves, disparos, muerteEvent) {
+    if ((this.x>=0 && this.x<= 1650) && (this.y>=0 && this.y <=830)) {
       this.x += this.spdX
       this.y += this.spdY
 
@@ -33,22 +33,26 @@ class Bala {
         if(dist <= this.r + nave.r ) {
             nave.changeLife(this.damage)
             
-            if (nave.hp ==0) {
+            if (nave.hp === 0) {
+              let positionScore = naves.findIndex((ship) => ship.id === this.parentID)
+              naves[positionScore].updateScore(20);
+              muerteEvent()
               const position = disparos.findIndex((disparo) => disparo.id === this.id)
               disparos.splice(position, 1)
               this.removed = true
-              nave.x = -100;
-              nave.y = -100;
-              var respawn =setInterval(function() {
-                nave.x = Math.floor(Math.random () *1450) +150; 
-                nave.y = Math.floor(Math.random () *550) +90;
-                nave.hp =10;
-                nave.score =0;
-                clearInterval(respawn);
+              nave.x = -100
+              nave.y = -100
+              var respawn = setInterval(function() {
+                nave.x = Math.floor(Math.random () * 1450) + 150 
+                nave.y = Math.floor(Math.random () * 550) + 90 
+                nave.hp = 10
+                nave.score = 0
+                nave.dead = false
+                clearInterval(respawn)
               },2000)
-              
-              
-              this.score +=10;
+            } else {
+              let positionScoreShip = naves.findIndex((ship) => ship.id === this.parentID)
+              naves[positionScoreShip].updateScore(10);
             }
             const position = disparos.findIndex((disparo) => disparo.id === this.id)
             disparos.splice(position, 1)

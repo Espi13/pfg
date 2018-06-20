@@ -3,16 +3,27 @@
 // TODO: A;adir toda la logica de inicio de sesion
 
 const app = new PIXI.Application({
-  width: 1890,
-  height: 900,
+  width: 1920,
+  height: 947,
   transparent: true,
   antialias: true
 })
 const hpbackground = new PIXI.Graphics()
 const hpbar = new PIXI.Graphics()
-const hpbackgroundEnemy = new PIXI.Graphics()
-const hpbarEnemy = new PIXI.Graphics()
-const nameText = new PIXI.Text();
+const shieldbackground = new PIXI.Graphics()
+const shieldbar = new PIXI.Graphics()
+
+
+
+const mousePos = {
+  x: 0,
+  y: 0
+}
+
+const printedPlayerItems = {
+  recoil: false,
+  speed: false
+}
 
 var hpTextStyle = new PIXI.TextStyle({
   fontFamily: 'Arial',
@@ -30,10 +41,34 @@ var hpTextStyle = new PIXI.TextStyle({
   wordWrapWidth: 440
 })
 var hpText = new PIXI.Text('10  /  10', hpTextStyle)
-hpText.x = 800
-hpText.y = 805
+hpText.x = 600
+hpText.y = 875
 
-app.stage.addChild(hpText);
+
+var shieldTextStyle = new PIXI.TextStyle({
+  fontFamily: 'Arial',
+  fontSize: 30,
+  fontWeight: 'bold',
+  fill: ['#4492f3', '#FFFFFF'], // gradient
+  stroke: '#000000',
+  strokeThickness: 5,
+  dropShadow: true,
+  dropShadowColor: '#000000',
+  dropShadowBlur: 4,
+  dropShadowAngle: Math.PI / 6,
+  dropShadowDistance: 6,
+  wordWrap: true,
+  wordWrapWidth: 440
+})
+var shieldText = new PIXI.Text('0 / 5', shieldTextStyle)
+shieldText.x = 1225
+shieldText.y = 875
+
+
+
+
+
+
 const controls = {
   up: false,
   down: false,
@@ -48,20 +83,24 @@ console.log({a: app.view})
 // Datos de sockets
 let playerShip = {}
 let ships = []
-let printedShips = [] // Para hacerlo mas comodo
+let printedShips = [] 
 let printedShields = []
 let bullets = []
-let printedBullets = [] // Para hacerlo mas comodo
+let printedBullets = [] 
 let items = []
 var hpafter = 10
 var hpafterEnemy = 10
+var shieldafterEnemy = 0
+let scoreShips = []
+const enemyBars = false
 
 let printedItems = []
 //const username = 'Test'
 //const password = 'Test'
 const spriteShield = {}
 
-const socket = io('http://localhost:2000')
+const socket = io('http://80.211.134.215:3000')
+//const socket = io('http://localhost:3000')
 
 var container = document.getElementById('container');
 var signDiv = document.getElementById('signDiv');
@@ -94,8 +133,7 @@ socket.on('signUpResponse', (data) => {
 }
 else {
    alert("No es posible realizar el registro ");
-  
-}
+  }
 })
 
 socket.on('signInResponse', (data) => {
@@ -132,63 +170,55 @@ socket.on('idAssigned', ({ id }) => {
 
 function setup() {
   document.getElementById('gameDiv').appendChild(app.view)
-
   setInterval(function() {
+    controls.angle = getAngle()
     socket.emit('keydown', controls)
   }, 100)
 
-  // Asignamos los sprites a variables para poder usarlos, en el caso de background esta declarado como local de esta funcion, si quieres manipularlo, tendras que sacarlo como las otras
+  
   const background = new PIXI.Sprite(PIXI.loader.resources['client/img/background/nebula.jpg'].texture)
   playerShip.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave.png'].texture)        
   spriteShield.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image.png'].texture)
   spriteShield.sprite.x = -100
   spriteShield.sprite.y = -100
 
-  // Para imprimirlo en el centro
+ 
   playerShip.sprite.x = 250
   playerShip.sprite.y = 250
 
-  // Para que el punto de rotacion sea el centro de la nave y no el punto (0, 0)
   playerShip.sprite.anchor.x = 0.5
   playerShip.sprite.anchor.y = 0.5
 
-  var style = new PIXI.TextStyle({
-      fontFamily: 'Arial',
-      fontSize: 36,
-      fontStyle: 'italic',
-      fontWeight: 'bold',
-      fill: ['#01DF01', '#FFFFFF'], // gradient
-      stroke: '#000000',
-      strokeThickness: 5,
-      dropShadow: true,
-      dropShadowColor: '#000000',
-      dropShadowBlur: 4,
-      dropShadowAngle: Math.PI / 6,
-      dropShadowDistance: 6,
-      wordWrap: true,
-      wordWrapWidth: 440
-  })
-
-  var richText = new PIXI.Text('SCORE', style)
-  richText.x = 1700
-  richText.y = 50
+  
 
   hpbackground.lineStyle(2, 0x000000, 1)
   hpbackground.beginFill(0xFFFFFF, 0.1)
-  hpbackground.drawRoundedRect(600, 800, 500, 50, 10)
+  hpbackground.drawRoundedRect(400, 870, 500, 50, 10)
   hpbar.beginFill(0x01DF01, 1)
   hpbar.drawRoundedRect(0, 0, 500, 50, 10)
-  hpbar.x = 600
-  hpbar.y = 800
+  hpbar.x = 400
+  hpbar.y = 870
   hpbar.endFill()
+
+  shieldbackground.lineStyle(2, 0x000000, 1)
+  shieldbackground.beginFill(0xFFFFFF, 0.1)
+  shieldbackground.drawRoundedRect(1000, 870, 500, 50, 10)
+  shieldbar.beginFill(0x4492f3, 1)
+  shieldbar.drawRoundedRect(0, 0, 500, 50, 10)
+  shieldbar.width = 0
+  shieldbar.x = 1000
+  shieldbar.y = 870
+  shieldbar.endFill()
 
   app.stage.addChild(background)
   app.stage.addChild(playerShip.sprite)
   app.stage.addChild(spriteShield.sprite)
-  app.stage.addChild(richText);
   app.stage.addChild(hpbackground);
   app.stage.addChild(hpbar);
+  app.stage.addChild(shieldbackground);
+  app.stage.addChild(shieldbar);
   app.stage.addChild(hpText);
+  app.stage.addChild(shieldText);
   app.ticker.add(delta => gameLoop(delta))
 }
 
@@ -199,10 +229,13 @@ function gameLoop(delta) {
   playerShip.sprite.x = ships[playerPosition].x
   playerShip.sprite.y = ships[playerPosition].y
   playerShip.sprite.rotation = controls.angle
- 
+  playerShip.score = ships[playerPosition].score
+
+  document.querySelector('#score > span').innerText = playerShip.score
+  
   if (ships[playerPosition].hp !== hpafter){
     hpafter = ships[playerPosition].hp
-    let hp = ships[playerPosition].hp *50
+    let hp = ships[playerPosition].hp * 50
     hpbar.width = hp
     hpText.text = ships[playerPosition].hp + "  /  " + ships[playerPosition].hpMax
 
@@ -213,13 +246,40 @@ function gameLoop(delta) {
     spriteShield.sprite.y = ships[playerPosition].y
     spriteShield.sprite.anchor.x = 0.5
     spriteShield.sprite.anchor.y = 0.5
+    let shield = ships[playerPosition].shield * 100
+    
+    shieldbar.width = shield
+    shieldText.text = ships[playerPosition].shield + " / 5"
   }
+  
   else {
+    shieldbar.width = 0
+    shieldText.text = ships[playerPosition].shield + " / 5"
     spriteShield.sprite.x = - 100
     spriteShield.sprite.y = - 100
   }
-  
-  
+  const itemsContainer = document.querySelector('.items-container')
+  if (ships[playerPosition].recoilActive && !printedPlayerItems.recoil) {
+    printedPlayerItems.recoil = true
+    itemsContainer.innerHTML += '<img src="client/img/items/speedshot-transparent.png" title="recoil" class="player-item">'
+  }
+  else if(!ships[playerPosition].recoilActive && printedPlayerItems.recoil) {
+    printedPlayerItems.recoil = false
+    const a = document.querySelector('img[title="recoil"]')
+    console.log(a)
+    a.remove()
+  }
+  if ( ships[playerPosition].speedActive && !printedPlayerItems.speed) {
+    printedPlayerItems.speed = true
+    itemsContainer.innerHTML += '<img src="client/img/items/speed-transparent.png" title="speed" class="player-item">'
+ }
+ else if(!ships[playerPosition].speedActive && printedPlayerItems.speed) {
+   printedPlayerItems.speed = false
+  const a = document.querySelector('img[title="speed"]')
+    console.log(a)
+    a.remove()
+ }
+ 
   
   items.forEach((item) => {
     
@@ -243,7 +303,6 @@ function gameLoop(delta) {
           sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/overpower-transparent.png'].texture)
           break;
       }
-
       sprite.x = item.x
       sprite.y = item.y
       printedItems.push({ id: item.id, sprite})
@@ -261,20 +320,21 @@ function gameLoop(delta) {
       itemToDelete.push(printedItem.id)
     }
   })
-
-  
-
   itemToDelete.forEach(id => {
     const position = printedItems.findIndex(printedItem => printedItem.id === id)
     printedItems.splice(position, 1)
   })
-
+  
   ships.forEach(ship => {
     if(ship.id !== playerShip.id) {
       const position = printedShips.findIndex((printedShip) => printedShip.id === ship.id)
       if(position === -1) {
         console.log('Pintando a ' + ship.id)
         const sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave_enemy.png'].texture)
+        const hpbackgroundEnemy = new PIXI.Graphics()
+        const hpbarEnemy = new PIXI.Graphics()
+        const nameText = new PIXI.Text();
+        const shieldbarEnemy = new PIXI.Graphics()
         sprite.x = ship.x
         sprite.y = ship.y
         sprite.anchor.x = 0.5
@@ -290,11 +350,17 @@ function gameLoop(delta) {
         hpbarEnemy.x = ship.x - 25
         hpbarEnemy.y = ship.y + 50
         hpbarEnemy.endFill()
+        shieldbarEnemy.beginFill(0x4492f3, 1)
+        shieldbarEnemy.drawRoundedRect(0, 0, 50, 10, 2)
+        shieldbarEnemy.width = 0
+        shieldbarEnemy.x = ship.x - 25
+        shieldbarEnemy.y = ship.y + 50
+        shieldbarEnemy.endFill()
         var nameStyle = new PIXI.TextStyle({
           fontFamily: 'Arial',
           fontSize: 14,
           fontWeight: 'bold',
-          fill: '#FFFFFF', // gradient
+          fill: '#FFFFFF', 
           stroke: '#000000',
           strokeThickness: 5,
           wordWrap: true,
@@ -306,13 +372,19 @@ function gameLoop(delta) {
         nameText.x = ship.x - 25;
         nameText.y =  ship.y - 50;
 
-        printedShips.push({ id: ship.id, sprite})
+        printedShips.push({ id: ship.id, sprite, hpbackgroundEnemy, hpbarEnemy, nameText , shieldbarEnemy})
         app.stage.addChild(sprite)
         app.stage.addChild(hpbackgroundEnemy)
         app.stage.addChild(hpbarEnemy)
+        app.stage.addChild(shieldbarEnemy)
         app.stage.addChild(nameText);
       } else {
         const sprite = printedShips[position].sprite
+        const hpbackgroundEnemy = printedShips[position].hpbackgroundEnemy
+        const hpbarEnemy = printedShips[position].hpbarEnemy
+        const nameText = printedShips[position].nameText
+        const shieldbarEnemy = printedShips[position].shieldbarEnemy
+        console.log("enttra")
         sprite.x = ship.x
         sprite.y = ship.y
         sprite.rotation = ship.angle
@@ -320,6 +392,8 @@ function gameLoop(delta) {
         hpbackgroundEnemy.y = ship.y + 50
         hpbarEnemy.x = ship.x - 25
         hpbarEnemy.y = ship.y + 50
+        shieldbarEnemy.x = ship.x - 25
+        shieldbarEnemy.y = ship.y + 50
         nameText.x = ship.x - 25;
         nameText.y =  ship.y - 50;
         if (hpafterEnemy !== ship.hp) {
@@ -327,17 +401,33 @@ function gameLoop(delta) {
           hpbarEnemy.width = ship.hp * 5
 
         }
+        if(shieldafterEnemy !== ship.shield) {
+          shieldafterEnemy = ship.shield
+          shieldbarEnemy.width = ship.shield * 10
+        }
       }
+      
     }
+    
   });
+
+  const scores = document.querySelector('#top > ul')
+  scores.innerHTML = ''
+
+  ships.slice(0, 5).forEach(({id, name, score}) => {
+    if(id === playerShip.id) {
+      scores.innerHTML += `<li><span class="player-score">${name} - ${score}</span></li>`
+    } else {
+      scores.innerHTML += `<li><span class="enemy-score">${name} - ${score}</span></li>`
+    }
+  })
 
   let toDelete = []
 
-  printedShips.forEach((printedShip, index) => {
+  printedShips.forEach((printedShip) => {
     const position = ships.findIndex((ship) => printedShip.id === ship.id)
     const shieldPosition = printedShields.findIndex((shield) => shield.id === printedShip.id)
-
-    if(ships[position].shield > 0) { 
+    if(position !== -1 && ships[position].shield > 0) { 
       if(shieldPosition === -1) {
         const spriteShieldEnemy = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image-enemy.png'].texture)
         spriteShieldEnemy.x = ships[position].x
@@ -355,10 +445,18 @@ function gameLoop(delta) {
       app.stage.removeChild(printedShields[shieldPosition].sprite)
       printedShields.splice(shieldPosition, 1)
     }
-    
+  })
 
+
+  printedShips.forEach((printedShip, index) => {
+    const position = ships.findIndex((ship) => printedShip.id === ship.id)
+   
     if(position === -1) {
       console.log('Borrando nave')
+      app.stage.removeChild(printedShips[index].hpbackgroundEnemy)
+      app.stage.removeChild(printedShips[index].hpbarEnemy)
+      app.stage.removeChild(printedShips[index].nameText)
+      app.stage.removeChild(printedShips[index].shieldbarEnemy)
       app.stage.removeChild(printedShips[index].sprite)
       toDelete.push(printedShip.id)
     }
@@ -367,9 +465,7 @@ function gameLoop(delta) {
   toDelete.forEach(id => {
     const position = printedShips.findIndex(printedShip => printedShip.id === id)
     printedShips.splice(position, 1)
-  })
-
-
+  })  
 
   bullets.forEach(bullet => {
     const position = printedBullets.findIndex((printedBullet) => printedBullet.id === bullet.id)
@@ -384,6 +480,9 @@ function gameLoop(delta) {
       sprite.y = bullet.y
       printedBullets.push({ id: bullet.id, sprite })
       app.stage.addChild(sprite)
+
+      let audio = new Audio('client/sound/shoot.wav')
+      audio.play();
     } else {
       const sprite = printedBullets[position].sprite
       sprite.x = bullet.x
@@ -408,9 +507,6 @@ function gameLoop(delta) {
   })
 }
 
-
-
-
 function getMousePos(evt) {
     return {
         x: evt.clientX - app.view.offsetLeft,
@@ -418,14 +514,19 @@ function getMousePos(evt) {
     }
 }
 
-app.view.addEventListener('mousemove', function (event) {
-    const mousePos = getMousePos(event)
-    const d = {
-        x: mousePos.x - (playerShip.sprite.x || 250),
-        y: mousePos.y - (playerShip.sprite.y || 250)
-    }
+function getAngle() {
+  const d = {
+    x: mousePos.x - (playerShip.sprite.x || 250),
+    y: mousePos.y - (playerShip.sprite.y || 250)
+  }
 
-    controls.angle = Math.atan2(d.y, d.x)
+  return Math.atan2(d.y, d.x)
+}
+
+app.view.addEventListener('mousemove', function (event) {
+    const {x, y} = getMousePos(event)
+    mousePos.x = x
+    mousePos.y = y
 }, false)
 
 document.addEventListener('keydown', (event) => {
@@ -466,7 +567,6 @@ document.addEventListener('keyup', (event) => {
   }
 })
 
-
 document.addEventListener('mousedown',(event) => {
     controls.click = true;
 })
@@ -476,7 +576,12 @@ document.addEventListener('mouseup',(event) => {
 
 socket.on('data', (data) => {
   
-  ships = data.naves
+  ships = data.naves.sort((a, b) => b.score > a.score)
   bullets = data.disparos
   items = data.items
+})
+
+socket.on('muerte', () => {
+  let audio = new Audio('client/sound/explosion.wav')
+  audio.play();
 })

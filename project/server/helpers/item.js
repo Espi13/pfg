@@ -4,7 +4,7 @@ class Item {
         this.x =  Math.floor(Math.random () *1450) +150
         this.y = Math.floor(Math.random () *550) +90
         this.r = 30
-        this.timer = 5* 1000
+        this.timer = 5 * 1000
         this.startTime = new Date().getTime()
         this.remove = false
         this.type = type

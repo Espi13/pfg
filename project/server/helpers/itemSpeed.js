@@ -11,8 +11,10 @@ class ItemSpeed extends Item  {
             .then((nave) => {
                 if(nave !== -1) {
                     naves[nave].maxSpd = this.maxSpd
+                    naves[nave].speedActive = true;
                     setTimeout (function() {
                         naves[nave].maxSpd = 4
+                        naves[nave].speedActive = false;
                     },10000)
                     
                 }

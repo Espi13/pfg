@@ -11,8 +11,10 @@ class ItemRecoil extends Item  {
             .then((nave) => {
                 if(nave !== -1) {
                     naves[nave].recoil = this.recoil
+                    naves[nave].recoilActive = true
                     setTimeout (function() {
                         naves[nave].recoil = 1000
+                        naves[nave].recoilActive = false
                     },10000)
                     
                 }

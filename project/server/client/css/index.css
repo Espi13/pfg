@@ -6,6 +6,10 @@
   background-size: cover;
   overflow: hidden;
 }*/
+body {
+  margin: 0;
+}
+@import url("https://fonts.googleapis.com/css?family=Audiowide");
 .spaceship{
     display: block;
     margin: auto;
@@ -32,99 +36,198 @@
     overflow: hidden;
     box-shadow: 10px 10px 30px rgb(63, 63, 63);
   }
-
-
-    #container{
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin: auto;
-      width: 260px;
-      height: 260px;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 1px 1px 50px #000;
-      display: none;
-    }
+  #container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 260px;
+    height: 260px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 1px 1px 50px #000;
+    display: none;
+  }
+  .close-btn{
+    position: absolute;
+    cursor: pointer;
+    font-family: 'Open Sans Condensed', sans-serif;
+    line-height: 18px;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border-radius: 10px;
+    opacity: .4;
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+  }
     
-    .close-btn{
-      position: absolute;
-      cursor: pointer;
-      font-family: 'Open Sans Condensed', sans-serif;
-      line-height: 18px;
-      top: 3px;
-      right: 3px;
-      width: 20px;
-      height: 20px;
-      text-align: center;
-      border-radius: 10px;
-      opacity: .4;
-      -webkit-transition: all 2s ease-in-out;
-      -moz-transition: all 2s ease-in-out;
-      -o-transition: all 2s ease-in-out;
-      transition: all 0.2s ease-in-out;
-    }
-    
-    .close-btn:hover{
-      opacity: .5;
-    }
-    h1{
-      font-family: Roboto, sans-serif;
-      position: relative;
-      margin-top: 5px;
-      margin-bottom: 30px;
-      text-align: center;
-      font-size: 25px;
-      color: #ddd;
-      text-shadow: 3px 3px 10px #000;
-    }
+  .close-btn:hover{
+    opacity: .5;
+  }
+  h1{
+    font-family: Roboto, sans-serif;
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 25px;
+    color: #ddd;
+    text-shadow: 3px 3px 10px #000;
+  }
 
-    a,input{
-      font-family: 'Open Sans Condensed', sans-serif;
-      text-decoration: none;
-      position: relative;
-      width: 80%;
-      display: block;
-      margin: 15px auto;
-      font-size: 17px;
-      color: #fff;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      background: rgba(3,3,3,.2);
-      -webkit-transition: all 2s ease-in-out;
-      -moz-transition: all 2s ease-in-out;
-      -o-transition: all 2s ease-in-out;
-      transition: all 0.2s ease-in-out;
+  a,input{
+    font-family: 'Open Sans Condensed', sans-serif;
+    text-decoration: none;
+    position: relative;
+    width: 80%;
+    display: block;
+    margin: 15px auto;
+    font-size: 17px;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(3,3,3,.2);
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+    
+  }
+    
+  input:focus{
+    outline: none;
+    box-shadow: 3px 3px 10px #333;
+    background: rgba(3,3,3,.3);
+  }
+    
+  /* Placeholders */
+  ::-webkit-input-placeholder {
+      color: #ddd;  }
+  :-moz-placeholder { /* Firefox 18- */
+      color: red;  }
+  ::-moz-placeholder {  /* Firefox 19+ */
+      color: red;  }
+  :-ms-input-placeholder {  
+      color: #333;  }
+  a{
+  font-family: 'Open Sans Condensed', sans-serif;
+  text-align: center;
+  padding: 4px 8px;
+  background: rgba(255, 5, 5, 0.4);
+  cursor: pointer;
+  }
       
-    }
-    
-    input:focus{
-      outline: none;
-      box-shadow: 3px 3px 10px #333;
-      background: rgba(3,3,3,.3);
-    }
-    
-    /* Placeholders */
-    ::-webkit-input-placeholder {
-       color: #ddd;  }
-    :-moz-placeholder { /* Firefox 18- */
-       color: red;  }
-    ::-moz-placeholder {  /* Firefox 19+ */
-       color: red;  }
-    :-ms-input-placeholder {  
-       color: #333;  }
-       a{
-        font-family: 'Open Sans Condensed', sans-serif;
-        text-align: center;
-        padding: 4px 8px;
-        background: rgba(255, 5, 5, 0.4);
-        cursor: pointer;
-        
-      }
-      
-      a:hover{
-       opacity: 0.7;
-      }
+  a:hover{
+    opacity: 0.7;
+  }
+
+#gameDiv {
+  position: relative;        
+}
+
+#gameDiv > #score {
+  
+  user-select: none;
+  font-size: 3em;
+  font-weight: bold;
+  color: white;
+  position: absolute;
+  top: 865px;
+  left: 40px; 
+  font-family: "Audiowide", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: linear-gradient(to bottom, #00ff00, whitesmoke 50%, whitesmoke 50%,black );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+}
+
+#gameDiv > #top {
+  position: absolute;
+  top: 20px;
+  right: 80px;
+  color: white;         
+  user-select: none;
+}
+.top-title {
+  font-size: 3em;
+  font-weight: bold;
+  color: white;
+  font-family: "Audiowide", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: linear-gradient(to bottom, #00ff00, whitesmoke 50%, whitesmoke 50%,black );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+
+.top-scores {
+  padding-left: 15px;
+}
+li {
+  list-style: none;
+}
+hr  {
+    height: 5px;
+    border: 0;
+    width: 100%;
+    box-shadow: inset 0 12px 12px -12px rgba(255, 255, 255, 0.5);
+}
+
+.player-score {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  font-family: "Audiowide", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: linear-gradient(to bottom, #00ff00, whitesmoke 90%, whitesmoke 50%,black );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.enemy-score {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  font-family: "Audiowide", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background: linear-gradient(to bottom, #ff0000, whitesmoke 90%, whitesmoke 50%,black );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.items-container {
+  position: absolute;
+  top: 860;
+  left: 1600;
+  user-select: none;
+}
+.player-item {
+  float: left;
+  animation-name: blinke;
+  animation-iteration-count: infinite;
+  user-select: none;
+  animation-delay: 0s;
+  animation-duration: 1s;
+  margin: 0 5px;
+}
+
+@keyframes blinke {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
