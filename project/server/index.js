@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const http = require('http')
 const socketIO = require('socket.io')
 
+
 const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
@@ -53,16 +54,14 @@ io.sockets.on('connection', function (socket) {
           socket.emit('signInResponse', { success: false });
         }
         else {
-          id = naves.length > 0 ? naves.slice(-1)[0].id + 1 : 0
-          socket.emit('idAssigned', { id })
-          jugador = new Player(id)
-          jugador.setName(user.name)
-          console.log('Oye! Que ' + user.name + ' con el ID ' + id + ' se ha conectado')
-          naves.push(jugador)
-          socket.emit('signInResponse', { success: true });
+            id = naves.length > 0 ? naves.slice(-1)[0].id + 1 : 0
+            socket.emit('idAssigned', { id })
+            jugador = new Player(id)
+            jugador.setName(user.name)
+            console.log('Oye! Que ' + user.name + ' con el ID ' + id + ' se ha conectado')
+            naves.push(jugador)
+            socket.emit('signInResponse', { success: true });
         }
-        
-        
       } else {
         socket.emit('signInResponse', { success: false });
       }
@@ -73,13 +72,17 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('signUp', async function (data) {
-    try {
-      const user = await User.register({ name: data.username, password: data.password })
-      socket.emit('signUpResponse',{success:true});
-    } catch(error) {
-      console.error(error)
-      socket.emit('signUpResponse',{success:false});
-    }
+     
+      try {
+        const user = await User.register({ name: data.username, password: data.password })
+        socket.emit('signUpResponse',{success:true});
+      } catch(error) {
+        console.error(error)
+        socket.emit('signUpResponse',{success:false});
+      }
+    
+    
+    
   });
 
   socket.on('disconnect', function () {
@@ -126,7 +129,7 @@ setInterval(function () {
     disparos,
     items
   })
-}, 5)
+}, 10)
 
 setInterval(function() {
   var random = Math.floor(Math.random() * 10000) / 100

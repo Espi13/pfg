@@ -1,21 +1,30 @@
+<div class="background-video">
+    <video autoplay loop muted id="video">
+        <source  src="client/video/background.mp4">
+    </video>
+</div>
+<audio  loop  id="backgroundSound" >
+    <source src="client/sound/background-sound.mp3">
+
+</audio>
+<span class="btn-mute"><img class="img-mute" src="client/img/sound/muted.png" alt=""></span>
+<span class="btn-sound"><img class="img-sound" src="client/img/sound/sound.png" alt=""></span>
+
 <div id="login-button">
     <img class="spaceship" src="client/img/login/login2.png"></img>
-  </div>
-  
-  <div id="container">
+</div>
+<div id="container">
     <h1>Spaceship War</h1>
     <span class="close-btn">
-      <img class="circle" src="client/img/login/circlecross.png"></img>
+        <img class="circle" src="client/img/login/circlecross.png"></img>
     </span>
-    <div id ="signDiv" >
-         <input id="signDiv-username" type="text" placeholder="Username">
-         <input id="signDiv-password" type="password" placeholder="Password">
+    <div id="signDiv">
+        <input id="signDiv-username" type="text" placeholder="Username">
+        <input id="signDiv-password" type="password" placeholder="Password">
         <a id="signDiv-signIn">Sign In</a>
         <a id="signDiv-signUp">Sign Up</a>
-    
     </div>
-    
-  </div>
+</div>
 
 
 <div  id="gameDiv" style="display: none">
@@ -36,362 +45,13 @@
 <link rel="stylesheet" href="/client/css/index.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.dev.js"></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.8.0/pixi.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2"></script>
 
 <script src="client/js/index.js"></script>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenMax.min.js'></script>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
   <script src="client/js/app.js" ></script>
-<script>
 
-    /*
-    //PIXI
-//var chat = document.getElementById('chat-text');
-//const canvas = document.createElement("canvas");
-//canvas.id = "ctx";
-var canvas = document.getElementById('ctx');
-
-var renderer = PIXI.autoDetectRenderer(1000, 600,{
-    transparent: true,
-    antialias: true,
-    view: canvas
-}); 
-
-
-PIXI.loader
-  .add('/client/img/spaceships/F5S4.png')
-  .add('/client/img/bullets/bullet-1.png')
-  .add('/client/img/background/nebula.jpg')
-  .load(setup)
-
-  function setup() {
-  
-  const background = new PIXI.Sprite(PIXI.loader.resources['fondo.jpg'].texture)
-  playerShip.sprite = new PIXI.Sprite(PIXI.loader.resources['nave.jpg'].texture)
-  bullets.push(new PIXI.Sprite(PIXI.loader.resources['bola.jpg'].texture))
-
-  // Para imprimirlo en el centro
-  playerShip.sprite.x = (app.renderer.width - playerShip.sprite.width) / 2
-  playerShip.sprite.y = (app.renderer.height - playerShip.sprite.height) / 2
-
-  // Para que el punto de rotacion sea el centro de la nave y no el punto (0, 0)
-  playerShip.sprite.anchor.x = 0.5
-  playerShip.sprite.anchor.y = 0.5
-
-  // A;adimos imagenes, se pueden eliminar mas tarde, aunque estas dos seguramente esten todo el tiempo, por eso las he a;adido en setup
-  app.stage.addChild(background)
-  app.stage.addChild(playerShip.sprite)
-  app.ticker.add(delta => gameLoop(delta))
-}
-
-function gameLoop(delta) {
-
-
-
-  // Aqui leer la info que te llega desde sockets
-
-  // Para pintar las naves por ejemplo, si ya estaba pintada anteriormente simplemente actualizamos las coordenadas, si no,  la a;adimos y si ya no esta, la eliminamos
-  // Hay varias formas de hacer esto, creo que lo mas comodo sera tener dos arrays, uno de lo que te llegue y otro de lo que ya has pintado
-
-  // Como no quieres ES6 te lo explico y lo haces como veas, compruebas si la nave con el id existe en 'printedShips' si no, la a;ades tal que asi:
-  // printedShips.push({ id, sprite: new PIXI.Sprite(PIXI.loader.resources['nave.jpg'].texture)})
-  // printedShips[elQueToque].sprite.x = ships[elQueToque].pos.x
-  // Haces lo mismo con el resto de propiedades (angulo, y, etc, etc)
-  // Por ultimo lo a;ades al stage ya que este no estaba
-  // app.stage.addChild(printedShips[elQueToque].sprite)
-  // Todo eso en caso de que no estuviese antes, si lo estaba tan solo actualizamos las propiedades:
-  // printedShips[elQueToque].sprite.x = ships[elQueToque].pos.x
-  // Haces lo mismo con el resto de propiedades (angulo, y, etc, etc)
-  // Y por ultimo, en caso de que ya no este simplemente lo eliminamos
-  // Primero del stage
-  // app.stage.removeChild(printedShips[elQueToque].sprite)
-  // Luego de la lista
-  // printedShips.splice(elQueToque, 1)
-  // Luego repites todo esto con las balas y listo
-
-  playerShip.sprite.rotation = angle
-}
-
-var stage = new PIXI.Container();
-
- 
-
-
-var texture = PIXI.Texture.fromImage('/client/img/spaceships/F5S4.png'); 
-var spaceShip = new PIXI.Sprite(texture);
-spaceShip.anchor.x = 0.5;  
-spaceShip.anchor.y = 0.5;
-spaceShip.scale.set(0.5,0.5);
-
-// move the sprite to the center of the screen
-
-var background = new PIXI.Graphics(); 
-background.beginFill(0x123456,0);  
-background.drawRect(0,0,1920,800);  
-background.endFill();  
-stage.addChild(background);
-
-
-
-stage.interactive = true;
-
-stage.on("mousedown", function(e){  
-  shoot(spaceShip.rotation, {
-    x: spaceShip.position.x+Math.cos(spaceShip.rotation)*10,
-    y: spaceShip.position.y+Math.sin(spaceShip.rotation)*10
-  });
-})
-
-var bulletImg = PIXI.Texture.fromImage('/client/img/bullets/bullet-1.png');
-var bullets = [];  
-var bulletSpeed = 5;
-
-function shoot(rotation, startPosition){  
-  var bullet = new PIXI.Sprite(bulletImg);
-  bullet.position.x = startPosition.x;
-  bullet.position.y = startPosition.y;
-  bullet.rotation = rotation;
-  stage.addChild(bullet);
-  bullets.push(bullet);
-}
-
-
-
-// start animating
-animate();  
-function animate() {  
-  requestAnimationFrame(animate);
-
-function rotateToPoint(mx, my, px, py){  
-        var self = this;
-        var dist_Y = my - py;
-        var dist_X = mx - px;
-        var angle = Math.atan2(dist_Y,dist_X);
-        //var degrees = angle * 180/ Math.PI;
-        return angle;
-    }
-
-spaceShip.rotation = rotateToPoint(renderer.plugins.interaction.mouse.global.x, renderer.plugins.interaction.mouse.global.y, spaceShip.position.x, spaceShip.position.y);
-
-
-  for(var b=bullets.length-1;b>=0;b--){
-    bullets[b].position.x += Math.cos(bullets[b].rotation)*bulletSpeed;
-    bullets[b].position.y += Math.sin(bullets[b].rotation)*bulletSpeed;
-  }
-  // render the container
-  renderer.render(stage);
-}
-
-
-    var socket = io();
-    //Sign
-    var signDiv = document.getElementById('signDiv');
-    var signDivUsername = document.getElementById('signDiv-username');
-    var signDivSignIn = document.getElementById('signDiv-signIn');
-    var signDivSignUp = document.getElementById('signDiv-signUp');
-    var signDivPassword = document.getElementById('signDiv-password');
-
-
-     signDivSignIn.onclick = function () {
-         socket.emit('signIn',{username:signDivUsername.value,password:signDivPassword.value});
-     }
-     signDivSignUp.onclick = function () {
-         socket.emit('signUp',{username:signDivUsername.value,password:signDivPassword.value});
-     }
-     socket.on('signInResponse',function (data) {
-         if(data.success) {
-             signDiv.style.display="none";
-             gameDiv.style.display="inline-block";
-         }
-         else
-            alert("No es posible iniciar sesion");
-
-     });
-     socket.on('signUpResponse',function (data) {
-         if(data.success) {
-            alert("Registro Completado");
-         }
-         else
-            alert("El registro no ha sido posible");
-
-     });
-    
-
-    //Juego 
-    //imagenes
-    
-
-    var ctx = document.getElementById('ctx').getContext("2d");
-    //ctx.font = "30px Arial";
-     //iniciar
-     var Player = function(initPack) {
-        var self = {};
-        self.id = initPack.id;
-        self.number = initPack.number;
-        self.x = initPack.x;
-        self.y = initPack.y;
-        self.hp = initPack.hp;
-        self.hpMax = initPack.hpMax;
-        self.score = initPack.score;
-        self.draw = function () {
-            var hpWidth = 30 *self.hp /self.hpMax;
-            //ctx.fillStyle = 'red';
-            //ctx.fillRect(self.x - hpWidth /2,self.y-80,hpWidth,4);
-            
-            var width =  86 ;
-            var height = 145;
-            spaceShip.position.x = self.x-width/2;  
-            spaceShip.position.y =self.y-height/2;
-            stage.addChild(spaceShip);
-            
-        }
-
-        Player.list[self.id] = self;
-        return self;
-    }
-    Player.list =  {};
-
-    var Bullet = function(initPack) {
-        var self = {};
-        self.id = initPack.id;
-        self.x = initPack.x;
-        self.y = initPack.y;
-        self.draw = function () {
-            var width = Img.bullet.width*2;
-            var height = Img.bullet.height*2;
-            ctx.drawImage(Img.bullet, 
-                0,0, Img.bullet.width, Img.bullet.height, 
-                self.x-width/2, self.y-height/2, width,height);
-        }
-        Bullet.list[self.id] = self;
-        
-        return self;
-    }
-    Bullet.list =  {};
-    var selfId = null;
-
-
-    socket.on('init',function (data) {
-        for (var i=0; i< data.player.length; i++) {
-            new Player(data.player[i]);
-        }
-        for (var i=0; i< data.bullet.length;i++) {
-            new Bullet(data.bullet[i]);
-        }
-    });
-
-
-     //actualizar
-     socket.on('update',function(data) {
-        for (var i = 0; i< data.player.length;i++) {
-            var pack = data.player[i];
-            var p= Player.list[pack.id];
-            if (p) {
-                if (pack.x !==undefined)
-                    p.x = pack.x;
-                if(pack.y !==undefined)
-                    p.y = pack.y;
-                if (pack.hp !==undefined)
-                    p.hp = pack.hp;
-                if (pack.score !==undefined)
-                    p.score = pack.score;
-            }
-        }
-        for (var i = 0; i< data.bullet.length;i++) {
-            var pack = data.bullet[i];
-            var b= Bullet.list[pack.id];
-            if (b) {
-                if (pack.x !==undefined)
-                    b.x = pack.x;
-                if(pack.y !==undefined)
-                    b.y = pack.y;
-            }
-        }
-
-    })
-
-     //eliminar
-    socket.on ('remove',function(data) {
-        for (var i=0; i < data.player.length;i++) {
-            delete Player.list[data.player[i]];
-        }
-        for (var i=0; i < data.bullet.length;i++) {
-            delete Bullet.list[data.bullet[i]];
-        }
-    });
-
-*//*
-    setInterval(function() {
-        ctx.clearRect(0,0,1000,600);
-        // drawMap();
-        // for (var i in Player.list)
-        //     Player.list[i].draw();
-        // for (var i in Bullet.list)
-        //     Bullet.list[i].draw();
-    },1);*/
-    // var drawMap = function () {
-    //     //ctx.drawImage(Img.map,0,0);
-    // }
-    
-    // document.onkeydown = function (event) {
-    //     if(event.keyCode == 68) //D
-    //         socket.emit('keyPress',{inputId:'right',state:true});
-    //     else if(event.keyCode == 87) //S
-    //         socket.emit('keyPress',{inputId:'down',state:true});
-    //     if(event.keyCode == 65) //A
-    //         socket.emit('keyPress',{inputId:'left',state:true});
-    //     if(event.keyCode == 83) //W
-    //         socket.emit('keyPress',{inputId:'up',state:true});
-    // }
-    // document.onkeyup = function (event) {
-    //     if(event.keyCode == 68) //D
-    //         socket.emit('keyPress',{inputId:'right',state:false});
-    //     else if(event.keyCode == 87) //S
-    //         socket.emit('keyPress',{inputId:'down',state:false});
-    //     if(event.keyCode == 65) //A
-    //         socket.emit('keyPress',{inputId:'left',state:false});
-    //     if(event.keyCode == 83) //W
-    //         socket.emit('keyPress',{inputId:'up',state:false});
-    // }
-    // document.onmousedown = function (event) {
-    //     socket.emit('keyPress',{inputId:'attack',state:true});
-           
-    // }
-    // document.onmouseup = function (event) {
-    //     socket.emit('keyPress',{inputId:'attack',state:false});
-    // }
-    
-    // document.onmousemove = function(event) {
-    //     var x = -500 +event.clientX - 8 ;
-    //     var y = -300 +event.clientY - 8 ;
-    //     var angle = Math.atan2(y,x) /Math.PI *180;
-    //     socket.emit('keyPress', {inputId:'mouseAngle',state:angle});
-
-    // }
-
-    
-    // //Chat
-    // var chatText = document.getElementById('chat-text');
-    // var chatInput = document.getElementById('chat-input');
-    // var chatForm = document.getElementById('chat-form');
-    
-    // socket.on('addToChat', function(data) {
-    //     chatText.innerHTML+= '<div>'+data+'</div>';
-    // });
-
-    // socket.on('evalAnswer', function(data) {
-    //     console.log(data);
-    // });
-    
-    // chatForm.onsubmit = function (e) {
-    //     e.preventDefault();
-    //     if (chatInput.value[0]=== '/') 
-    //         socket.emit('evalServer',chatInput.value.slice(1));
-    //     else
-    //         socket.emit('sendMsgToServer',chatInput.value);
-        
-    //     chatInput.value='';
-    // }
-</script>
 
 
 

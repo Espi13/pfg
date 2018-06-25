@@ -1,6 +1,5 @@
 'use strict'
 
-// TODO: A;adir toda la logica de inicio de sesion
 
 const app = new PIXI.Application({
   width: 1920,
@@ -12,9 +11,8 @@ const hpbackground = new PIXI.Graphics()
 const hpbar = new PIXI.Graphics()
 const shieldbackground = new PIXI.Graphics()
 const shieldbar = new PIXI.Graphics()
-
-
-
+var audioShoot = new Audio('client/sound/shoot.wav')
+var audioDead = new Audio('client/sound/explosion.wav')
 const mousePos = {
   x: 0,
   y: 0
@@ -29,7 +27,7 @@ var hpTextStyle = new PIXI.TextStyle({
   fontFamily: 'Arial',
   fontSize: 30,
   fontWeight: 'bold',
-  fill: ['#01DF01', '#FFFFFF'], // gradient
+  fill: ['#01DF01', '#FFFFFF'],
   stroke: '#000000',
   strokeThickness: 5,
   dropShadow: true,
@@ -49,7 +47,7 @@ var shieldTextStyle = new PIXI.TextStyle({
   fontFamily: 'Arial',
   fontSize: 30,
   fontWeight: 'bold',
-  fill: ['#4492f3', '#FFFFFF'], // gradient
+  fill: ['#4492f3', '#FFFFFF'], 
   stroke: '#000000',
   strokeThickness: 5,
   dropShadow: true,
@@ -64,11 +62,6 @@ var shieldText = new PIXI.Text('0 / 5', shieldTextStyle)
 shieldText.x = 1225
 shieldText.y = 875
 
-
-
-
-
-
 const controls = {
   up: false,
   down: false,
@@ -78,9 +71,7 @@ const controls = {
   angle: 0
 }
 
-console.log({a: app.view})
 
-// Datos de sockets
 let playerShip = {}
 let ships = []
 let printedShips = [] 
@@ -102,80 +93,169 @@ const spriteShield = {}
 const socket = io('http://80.211.134.215:3000')
 //const socket = io('http://localhost:3000')
 
-var container = document.getElementById('container');
-var signDiv = document.getElementById('signDiv');
-var signDivSignIn = document.getElementById('signDiv-signIn');
-var signDivSignUp = document.getElementById('signDiv-signUp');
+var container = document.getElementById('container')
+var backgroundVideo = document.querySelector('.background-video')
+var signDiv = document.getElementById('signDiv')
+var signDivSignIn = document.getElementById('signDiv-signIn')
+var signDivSignUp = document.getElementById('signDiv-signUp')
+var backgroundAudio = document.getElementById('backgroundSound')
+
+var btnMute = document.querySelector('.btn-mute')
+var btnSound = document.querySelector('.btn-sound')
 
 var username = ""
 var password = ""
 
 socket.on('connected', function(data) {
+  
+ 
   signDivSignUp.onclick = function () {
     
     username = document.getElementById('signDiv-username').value
-    password = document.getElementById('signDiv-password').value;
-    socket.emit('signUp',{username, password});
+    password = document.getElementById('signDiv-password').value
+    if (/^([A-Za-z0-9]){4,8}$/.test(username) == false ) {
+      swal( {
+        type: 'error',
+        title: 'Oops...',
+        html: 'Comprueba tu nombre<br> <strong style="color:red;">Debe ser de entre 4 y 8 caracteres</strong>',
+       })
+    }
+    else if (/^([A-Za-z0-9]){4,8}$/.test(password) == false ) {
+      swal( {
+        type: 'error',
+        title: 'Oops...',
+        html: 'Comprueba tu contraseña<br> <strong style="color:red;">Debe ser de entre 4 y 8 caracteres</strong>'
+       })
+    }
+    else {
+      let timerInterval
+      swal({
+        title: 'Registro Completado',
+        html: 'Cargando... <strong></strong>',
+        timer: 1500,
+        onOpen: () => {
+          swal.showLoading()
+          timerInterval = setInterval(() => {
+            swal.getContent().querySelector('strong')
+              .textContent = swal.getTimerLeft()
+          }, 100)
+        },
+        onClose: () => {
+          clearInterval(timerInterval)
+        }
+      }).then((result) => {
+        if (result.dismiss === swal.DismissReason.timer) {
+          
+          socket.emit('signUp',{username, password})
+        }
+      })
+      
+      
+    }
+    
   }
   
   signDivSignIn.onclick = function () { 
     
     username = document.getElementById('signDiv-username').value
-    password = document.getElementById('signDiv-password').value;
-    socket.emit('signIn',{username,password});
+    password = document.getElementById('signDiv-password').value
+    if (/^([A-Za-z0-9]){4,8}$/.test(username) == false ) {
+      swal( {
+        type: 'error',
+        title: 'Oops...',
+        html: '<strong style="color:red;">Comprueba tu nombre</strong>',
+       })
+    }
+    else if (/^([A-Za-z0-9]){4,8}$/.test(password) == false ) {
+      swal( {
+        type: 'error',
+        title: 'Oops...',
+        html: '<strong style="color:red;">Comprueba tu contraseña</strong>'
+       })
+    }
+    else {
+      let timerInterval
+      swal({
+        title: 'CARGANDO...',
+        html: ' <strong></strong>',
+        timer: 1500,
+        onOpen: () => {
+          swal.showLoading()
+          timerInterval = setInterval(() => {
+            swal.getContent().querySelector('strong')
+              .textContent = swal.getTimerLeft()
+          }, 100)
+        },
+        onClose: () => {
+          clearInterval(timerInterval)
+        }
+      }).then((result) => {
+        if (result.dismiss === swal.DismissReason.timer) {
+          
+          socket.emit('signIn',{username,password})
+        }
+      })
+    }
+    
+    
   }
 })
 
 socket.on('signUpResponse', (data) => {
   if(data.success) {
-    alert("has sido registrado correctamente, iniciando sesion...")
     socket.emit('signIn', { username, password })
+    
 }
 else {
-   alert("No es posible realizar el registro ");
+   swal( {
+    type: 'error',
+    title: 'Oops...',
+    text: 'Comprueba tu nombre o contraseña',
+   })
   }
 })
 
 socket.on('signInResponse', (data) => {
   if(data.success) {
-    container.style.display="none";
-    gameDiv.style.display="block";
-
-    // Precarga de las imagenes
+    container.style.display = "none"
+    backgroundVideo.style.display = "none"
+    gameDiv.style.display = "block"
+    backgroundAudio.play();
+    backgroundAudio.volume = 0.05
     PIXI.loader
-      .add('client/img/spaceships/nave.png')
-      .add('client/img/spaceships/nave_enemy.png')
-      .add('client/img/bullets/bala.png')
-      .add('client/img/bullets/bala_enemy.png')
-      .add('client/img/background/nebula.jpg')
-      .add('client/img/items/health-transparent.png')
-      .add('client/img/items/speed-transparent.png')
-      .add('client/img/items/overpower-transparent.png')
-      .add('client/img/items/shield-transparent.png')
-      .add('client/img/items/speedshot-transparent.png')
-      .add('client/img/items/shield-image.png')
-      .add('client/img/items/shield-image-enemy.png')
-      .load(setup)
-}
-else {
-   alert("No es posible realizar el inicio de sesion ");
-   
-}
+        .add('client/img/spaceships/nave.png')
+        .add('client/img/spaceships/nave_enemy.png')
+        .add('client/img/bullets/bala.png')
+        .add('client/img/bullets/bala_enemy.png')
+        .add('client/img/background/nebula.jpg')
+        .add('client/img/items/health-transparent.png')
+        .add('client/img/items/speed-transparent.png')
+        .add('client/img/items/overpower-transparent.png')
+        .add('client/img/items/shield-transparent.png')
+        .add('client/img/items/speedshot-transparent.png')
+        .add('client/img/items/shield-image.png')
+        .add('client/img/items/shield-image-enemy.png')
+        .load(setup)
+  }
+  else {
+    swal(
+      '¿Estas registrado?',
+      'Registrate o comprueba tu usuario y contraseña',
+      'question'
+    )
+    
+  }
 })
 
 socket.on('idAssigned', ({ id }) => {
   playerShip.id = id
 })
-
-
 function setup() {
   document.getElementById('gameDiv').appendChild(app.view)
   setInterval(function() {
     controls.angle = getAngle()
     socket.emit('keydown', controls)
   }, 100)
-
-  
   const background = new PIXI.Sprite(PIXI.loader.resources['client/img/background/nebula.jpg'].texture)
   playerShip.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/spaceships/nave.png'].texture)        
   spriteShield.sprite = new PIXI.Sprite(PIXI.loader.resources['client/img/items/shield-image.png'].texture)
@@ -188,8 +268,6 @@ function setup() {
 
   playerShip.sprite.anchor.x = 0.5
   playerShip.sprite.anchor.y = 0.5
-
-  
 
   hpbackground.lineStyle(2, 0x000000, 1)
   hpbackground.beginFill(0xFFFFFF, 0.1)
@@ -223,8 +301,6 @@ function setup() {
 }
 
 function gameLoop(delta) {
-  
-
   const playerPosition = ships.findIndex(ship => ship.id === playerShip.id)
   playerShip.sprite.x = ships[playerPosition].x
   playerShip.sprite.y = ships[playerPosition].y
@@ -279,8 +355,6 @@ function gameLoop(delta) {
     console.log(a)
     a.remove()
  }
- 
-  
   items.forEach((item) => {
     
     const position = printedItems.findIndex((printedItem) => printedItem.id === item.id)
@@ -384,7 +458,6 @@ function gameLoop(delta) {
         const hpbarEnemy = printedShips[position].hpbarEnemy
         const nameText = printedShips[position].nameText
         const shieldbarEnemy = printedShips[position].shieldbarEnemy
-        console.log("enttra")
         sprite.x = ship.x
         sprite.y = ship.y
         sprite.rotation = ship.angle
@@ -408,7 +481,6 @@ function gameLoop(delta) {
       }
       
     }
-    
   });
 
   const scores = document.querySelector('#top > ul')
@@ -480,9 +552,7 @@ function gameLoop(delta) {
       sprite.y = bullet.y
       printedBullets.push({ id: bullet.id, sprite })
       app.stage.addChild(sprite)
-
-      let audio = new Audio('client/sound/shoot.wav')
-      audio.play();
+      audioShoot.play();
     } else {
       const sprite = printedBullets[position].sprite
       sprite.x = bullet.x
@@ -582,6 +652,22 @@ socket.on('data', (data) => {
 })
 
 socket.on('muerte', () => {
-  let audio = new Audio('client/sound/explosion.wav')
-  audio.play();
+  
+  audioDead.play();
 })
+
+btnMute.onclick = function () {
+  backgroundAudio.volume = 0
+  audioDead.volume = 0
+  audioShoot.volume = 0
+  btnSound.style.display = "block"
+  btnMute.style.display = "none"
+}
+
+btnSound.onclick = function () {
+  backgroundAudio.volume = 0.1
+  audioDead.volume = 0.7
+  audioShoot.volume = 0.7
+  btnSound.style.display = "none"
+  btnMute.style.display = "block"
+}
